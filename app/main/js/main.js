@@ -18,16 +18,29 @@ const translations = {
   de: require('./i18n/Nook_German.json'),
   it: require('./i18n/Nook_Italian.json'),
   fr: require('./i18n/Nook_French.json'),
-  cn: require('./i18n/Nook_Chinese.json')
+  cn: require('./i18n/Nook_Chinese.json'),
+  kr: require('./i18n/Nook_Korean.json')
+}
+
+const kkTranslations = {
+  en: require('./i18n/kk/KK_English.json'),
+  es: require('./i18n/kk/KK_Spanish.json'),
+  de: require('./i18n/kk/KK_German.json'),
+  it: require('./i18n/kk/KK_Italian.json'),
+  fr: require('./i18n/kk/KK_French.json'),
+  cn: require('./i18n/kk/KK_Chinese.json'),
+  kr: require('./i18n/kk/KK_Korean.json')
 }
 
 const changelog = require('../release-log.json')
 
 const kkSongs = require('../kk.json')
-const kkHtml = () => {
+const kkHtml = (lang) => {
   let res = ''
+  const currentKkTranslations = kkTranslations[lang] || kkTranslations.en
   kkSongs.forEach(song => {
-    res += `<label><input type="checkbox" class="kkSong" data-title="${song}" />${song}</label>`
+    const localizedSong = currentKkTranslations[song] || song
+    res += `<label><input type="checkbox" class="kkSong" data-title="${song}" />${localizedSong}</label>`
   })
 
   return res
@@ -182,6 +195,9 @@ const template = `
                 <option value="cn">
                     Chinese/中文 (CN)
                 </option>
+                <option value="kr">
+                    Korean/한국어 (KR)
+                </option>
               </select>
           </label>
           <p class="offline" data-i18n="offline" role="heading" aria-level="2"></p>
@@ -205,7 +221,6 @@ const template = `
             <button id="live_kk" data-i18n="live only"></button>
           </div>
           <div class="playlist">
-            ${kkHtml()}
           </div>
       </div>
       <div class="tune-settings page hidden">
@@ -338,6 +353,13 @@ const setCooldown = () => {
 }
 
 const changeLang = (lang, manual, arg) => {
+  const currentKK = []
+  if (manual) {
+    $('.kkSong:checked').each((_, e) => {
+      currentKK.push($(e).attr('data-title'))
+    })
+  }
+
   language = lang
   i18n = key => {
     let t = translations[lang][key]
@@ -366,6 +388,13 @@ const changeLang = (lang, manual, arg) => {
   obj.find('[data-i18n]').each((i, e) => {
     $(e).html(i18n($(e).attr('data-i18n')))
   })
+
+  obj.find('.playlist').html(kkHtml(lang))
+  if (manual) {
+    currentKK.forEach(song => {
+      obj.find(`.kk-customize input[data-title="${song}"]`).prop('checked', true)
+    })
+  }
 
   let changelogHtml = ''
   Object.keys(changelog).forEach(e => {
@@ -629,13 +658,17 @@ const exec = () => {
   })
 
   $('.kk-customize #live_kk').on('click', () => {
-    $('.kk-customize label').not(':contains(Radio)').find('input').prop('checked', true)
-    $('.kk-customize label').filter(':contains(Radio)').find('input').prop('checked', false)
+    $('.kk-customize input').each((_, e) => {
+      const isRadio = $(e).attr('data-title').includes('Radio')
+      $(e).prop('checked', !isRadio)
+    })
   })
 
   $('.kk-customize #radio_kk').on('click', () => {
-    $('.kk-customize label').filter(':contains(Radio)').find('input').prop('checked', true)
-    $('.kk-customize label').not(':contains(Radio)').find('input').prop('checked', false)
+    $('.kk-customize input').each((_, e) => {
+      const isRadio = $(e).attr('data-title').includes('Radio')
+      $(e).prop('checked', isRadio)
+    })
   })
 
   $('.tune-settings input[type="range"]').on('wheel', e => {
