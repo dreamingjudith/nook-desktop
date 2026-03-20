@@ -658,13 +658,17 @@ const exec = () => {
   })
 
   $('.kk-customize #live_kk').on('click', () => {
-    $('.kk-customize label').not(':contains(Radio)').find('input').prop('checked', true)
-    $('.kk-customize label').filter(':contains(Radio)').find('input').prop('checked', false)
+    $('.kk-customize input').each((_, e) => {
+      const isRadio = $(e).attr('data-title').includes('Radio')
+      $(e).prop('checked', !isRadio)
+    })
   })
 
   $('.kk-customize #radio_kk').on('click', () => {
-    $('.kk-customize label').filter(':contains(Radio)').find('input').prop('checked', true)
-    $('.kk-customize label').not(':contains(Radio)').find('input').prop('checked', false)
+    $('.kk-customize input').each((_, e) => {
+      const isRadio = $(e).attr('data-title').includes('Radio')
+      $(e).prop('checked', isRadio)
+    })
   })
 
   $('.tune-settings input[type="range"]').on('wheel', e => {
