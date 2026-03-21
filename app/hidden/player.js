@@ -94,7 +94,10 @@ const soundLoaded = async (a, isSound = true, url) => {
         await fadeSound('sound', true)
         url = url.replace('kk-slider-desktop', 'kk-slider')
         const friendlyHour = url.substring(url.lastIndexOf('/') + 1)
-        ipc.send('playing', [convertGameToHuman(friendlyHour.substring(0, friendlyHour.lastIndexOf('-'))), friendlyHour.substring(friendlyHour.lastIndexOf('-') + 1).replace('.ogg', '')])
+        const gameName = convertGameToHuman(friendlyHour.substring(0, friendlyHour.lastIndexOf('-')))
+        const songName = friendlyHour.substring(friendlyHour.lastIndexOf('-') + 1).replace('.ogg', '')
+        ipc.send('playing', [gameName, songName])
+        ipc.send('toWindow', ['playing', game, songName])
       } else {
         rain = a
         rain.start()

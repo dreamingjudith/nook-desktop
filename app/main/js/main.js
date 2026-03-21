@@ -87,7 +87,25 @@ const tunes = [
 let nanobar
 
 const template = `
+<style>
+.now-playing {
+  position: fixed;
+  top: 9px;
+  background: rgba(0, 0, 0, 1);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+  z-index: 1000;
+}
+.now-playing.visible {
+  opacity: 1;
+}
+</style>
 <div class="container overlay">
+  <div class="now-playing"></div>
   <div class="error"><div></div></div>
   <div class="header">
       <span class="title"><span id="openGithub" role="link" data-i18n-title="Nook GitHub">nook</span> |
@@ -783,6 +801,19 @@ $(document).ready(() => {
     } else if (arg[0] === 'pause') {
       paused = true
       pause(true)
+    } else if (arg[0] === 'playing') {
+      if (arg[1] === 'kk-slider-desktop') {
+        const songName = arg[2]
+        const currentKkTranslations = kkTranslations[language] || kkTranslations.en
+        const title = currentKkTranslations[songName] || songName
+        const $np = $('.now-playing')
+        $np.text(title).addClass('visible')
+        clearTimeout($np.data('timeout'))
+        const t = setTimeout(() => {
+          $np.removeClass('visible')
+        }, 4000)
+        $np.data('timeout', t)
+      }
     }
   })
 })
